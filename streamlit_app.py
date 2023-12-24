@@ -27,7 +27,7 @@ st.title("Wine Preference Quiz")
 # Initialize session state
 if 'init' not in st.session_state:
     st.session_state['current_question'] = 'acid'
-    st.session_state['init'] = True  # Flag to indicate initialization is done
+    st.session_state['init'] = True
     st.session_state['preferences'] = {}
 
 # Define the questions
@@ -40,9 +40,10 @@ questions = {
 }
 
 # Update question
-def update_question():
+def update_question(current_value):
     questions_list = list(questions.keys())
     current_index = questions_list.index(st.session_state['current_question'])
+    st.session_state['preferences'][st.session_state['current_question']] = current_value
     if current_index < len(questions_list) - 1:
         st.session_state['current_question'] = questions_list[current_index + 1]
     else:
@@ -52,18 +53,8 @@ def update_question():
 current_question = st.session_state['current_question']
 if current_question != 'done':
     preference = st.number_input(questions[current_question], 0, 100, 50, step=1, key=current_question)
-    if st.button('Next'):
-        st.session_state['preferences'][current_question] = preference
-        if current_question == 'acid':  # Special handling for the first question
-            update_question()
-
-# Handle subsequent questions
-if 'next_pressed' in st.session_state and st.session_state['next_pressed']:
-    update_question()
-    st.session_state['next_pressed'] = False
-
-if current_question != 'acid' and st.button('Next', key='next_button'):
-    st.session_state['next_pressed'] = True
+    if st.button('Next', key=f'next_{current_question}'):
+        update_question(preference)
 
 # "Find Best Match" button appears after all preferences are set
 if current_question == 'done':
