@@ -39,6 +39,10 @@ questions = [
     {"label": "Alcool", "key": "alcool"}
 ]
 
+# Callback function to update preference
+def update_preference(key, value):
+    st.session_state['preferences'][key] = value
+
 # Function to advance to the next question
 def next_question():
     if st.session_state['current_question'] < len(questions) - 1:
@@ -53,8 +57,8 @@ def next_question():
 
 # Display current question
 question = questions[st.session_state['current_question']]
-preference = st.number_input(question['label'], 0, 100, 50, step=1, key=question['key'])
+preference = st.number_input(question['label'], 0, 100, 50, step=1, key=question['key'],
+                             on_change=update_preference, args=(question['key'], ))
 
 if st.button('Next'):
-    st.session_state['preferences'][question['key']] = preference
     next_question()
