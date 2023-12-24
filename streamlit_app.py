@@ -25,7 +25,8 @@ def find_best_match(bottles, user_preferences):
 st.title("Wine Preference Quiz")
 
 # Initialize session state
-if 'preferences' not in st.session_state:
+if 'current_question_index' not in st.session_state:
+    st.session_state['current_question_index'] = 0
     st.session_state['preferences'] = {}
 
 # Define the questions
@@ -37,18 +38,31 @@ questions = [
     {"label": "Alcool", "key": "alcool"}
 ]
 
-with st.form("preference_form"):
-    for question in questions:
-        st.session_state['preferences'][question['key']] = st.number_input(question['label'], 0, 100, 50, step=1, key=question['key'])
+# Function to handle the next question
+def handle_next():
+    if st.session_state['current_question_index'] < len(questions) - 1:
+        st.session_state['current_question_index'] += 1
+    else:
+        st.session_state['completed'] = True
 
-    submitted = st.form_submit_button("Submit Preferences")
-    if submitted:
-        st.session_state['submitted'] = True
+# Show current question
+if st.session_state['current_question_index'] < len(questions):
+    question = questions[st.session_state['current_question_index']]
+    value = st.number_input(question['label'], 0, 100, 50, step=1, key=question['key'])
+    if st.button('Next', key=f'next_{question["key"]}'):
+        st.session_state['preferences'][question['key']] = value
+        handle_next()
 
-# "Find Best Match" button appears after preferences are submitted
-if 'submitted' in st.session_state and st.session_state['submitted']:
+# Show results if all questions are answered
+if 'completed' in st.session_state and st.session_state['completed']:
     user_preferences = st.session_state['preferences']
     best_match = find_best_match(bottles, user_preferences)
     st.write("Top Matching Bottles:")
     for bottle in best_match[:3]:
         st.write(f"Bottle: {bottle[0]}, Variance Score: {bottle[1]}")
+
+# Reset quiz
+if st.button('Reset Quiz'):
+    st.session_state['current_question_index'] = 0
+    st.session_state['preferences'] = {}
+    st.session_state['completed'] = False
