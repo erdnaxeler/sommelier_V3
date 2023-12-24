@@ -54,7 +54,16 @@ if current_question != 'done':
     preference = st.number_input(questions[current_question], 0, 100, 50, step=1, key=current_question)
     if st.button('Next'):
         st.session_state['preferences'][current_question] = preference
-        update_question()
+        if current_question == 'acid':  # Special handling for the first question
+            update_question()
+
+# Handle subsequent questions
+if 'next_pressed' in st.session_state and st.session_state['next_pressed']:
+    update_question()
+    st.session_state['next_pressed'] = False
+
+if current_question != 'acid' and st.button('Next', key='next_button'):
+    st.session_state['next_pressed'] = True
 
 # "Find Best Match" button appears after all preferences are set
 if current_question == 'done':
