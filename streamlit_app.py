@@ -26,38 +26,34 @@ st.title("Wine Preference Quiz")
 
 # Initialize session state
 if 'init' not in st.session_state:
-    st.session_state['current_question'] = 'acid'
+    st.session_state['current_question'] = 0
     st.session_state['init'] = True
     st.session_state['preferences'] = {}
+    st.session_state['values'] = [50, 50, 50, 50, 50]  # Default values
 
 # Define the questions
-questions = {
-    'acid': "Acidity",
-    'tanin': "Tanin",
-    'douceur': "Douceur",
-    'corps': "Corps",
-    'alcool': "Alcool"
-}
-
-# Update question
-def update_question(current_value):
-    questions_list = list(questions.keys())
-    current_index = questions_list.index(st.session_state['current_question'])
-    st.session_state['preferences'][st.session_state['current_question']] = current_value
-    if current_index < len(questions_list) - 1:
-        st.session_state['current_question'] = questions_list[current_index + 1]
-    else:
-        st.session_state['current_question'] = 'done'
+questions = [
+    {"label": "Acidity", "key": "acid"},
+    {"label": "Tanin", "key": "tanin"},
+    {"label": "Douceur", "key": "douceur"},
+    {"label": "Corps", "key": "corps"},
+    {"label": "Alcool", "key": "alcool"}
+]
 
 # Display current question
-current_question = st.session_state['current_question']
-if current_question != 'done':
-    preference = st.number_input(questions[current_question], 0, 100, 50, step=1, key=current_question)
-    if st.button('Next', key=f'next_{current_question}'):
-        update_question(preference)
+if st.session_state['current_question'] < len(questions):
+    question = questions[st.session_state['current_question']]
+    value = st.number_input(question['label'], 0, 100, 
+                            st.session_state['values'][st.session_state['current_question']], 
+                            step=1)
+    st.session_state['values'][st.session_state['current_question']] = value
+
+    if st.button('Next'):
+        st.session_state['preferences'][question['key']] = value
+        st.session_state['current_question'] += 1
 
 # "Find Best Match" button appears after all preferences are set
-if current_question == 'done':
+if st.session_state['current_question'] == len(questions):
     if st.button('Find Best Match'):
         user_preferences = st.session_state['preferences']
         best_match = find_best_match(bottles, user_preferences)
