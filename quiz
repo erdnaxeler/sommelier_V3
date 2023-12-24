@@ -1,3 +1,5 @@
+import streamlit as st
+
 # Correcting the representation of the bottle data as a list of dictionaries
 bottles = [
     {"name": "Blanc de Noirs, Domaine Armand Heitz", "acid": 50, "tanin": 20, "douceur": 0, "corps": 20, "alcool": 40},
