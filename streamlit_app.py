@@ -28,46 +28,38 @@ st.title("Wine Preference Quiz")
 if 'init' not in st.session_state:
     st.session_state['current_question'] = 'acid'
     st.session_state['init'] = True  # Flag to indicate initialization is done
+    st.session_state['preferences'] = {}
 
-# Function to go to the next question
-def next_question(current_value, next_q):
-    st.session_state[st.session_state['current_question']] = current_value
-    st.session_state['current_question'] = next_q
+# Define the questions
+questions = {
+    'acid': "Acidity",
+    'tanin': "Tanin",
+    'douceur': "Douceur",
+    'corps': "Corps",
+    'alcool': "Alcool"
+}
 
-# Display questions based on current state
-if st.session_state['current_question'] == 'acid':
-    acid = st.number_input("Acidity", 0, 100, 50, step=1, key='acid')
-    if st.button('Next - Tanin'):
-        next_question(acid, 'tanin')
+# Update question
+def update_question():
+    questions_list = list(questions.keys())
+    current_index = questions_list.index(st.session_state['current_question'])
+    if current_index < len(questions_list) - 1:
+        st.session_state['current_question'] = questions_list[current_index + 1]
+    else:
+        st.session_state['current_question'] = 'done'
 
-elif st.session_state['current_question'] == 'tanin':
-    tanin = st.number_input("Tanin", 0, 100, 50, step=1, key='tanin')
-    if st.button('Next - Douceur'):
-        next_question(tanin, 'douceur')
-
-elif st.session_state['current_question'] == 'douceur':
-    douceur = st.number_input("Douceur", 0, 100, 50, step=1, key='douceur')
-    if st.button('Next - Corps'):
-        next_question(douceur, 'corps')
-
-elif st.session_state['current_question'] == 'corps':
-    corps = st.number_input("Corps", 0, 100, 50, step=1, key='corps')
-    if st.button('Next - Alcool'):
-        next_question(corps, 'alcool')
-
-elif st.session_state['current_question'] == 'alcool':
-    alcool = st.number_input("Alcool", 0, 100, 50, step=1, key='alcool')
+# Display current question
+current_question = st.session_state['current_question']
+if current_question != 'done':
+    preference = st.number_input(questions[current_question], 0, 100, 50, step=1, key=current_question)
+    if st.button('Next'):
+        st.session_state['preferences'][current_question] = preference
+        update_question()
 
 # "Find Best Match" button appears after all preferences are set
-if 'alcool' in st.session_state:
+if current_question == 'done':
     if st.button('Find Best Match'):
-        user_preferences = {
-            "acid": st.session_state['acid'],
-            "tanin": st.session_state['tanin'],
-            "douceur": st.session_state['douceur'],
-            "corps": st.session_state['corps'],
-            "alcool": st.session_state['alcool']
-        }
+        user_preferences = st.session_state['preferences']
         best_match = find_best_match(bottles, user_preferences)
         st.write("Top Matching Bottles:")
         for bottle in best_match[:3]:
