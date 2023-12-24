@@ -1,19 +1,25 @@
 import streamlit as st
 
-import streamlit as st
-
 # Define the bottles data
 bottles = [
-    # ... (same as before)
+    {"name": "Blanc de Noirs, Domaine Armand Heitz", "acid": 50, "tanin": 20, "douceur": 0, "corps": 20, "alcool": 40},
+    {"name": "Bourgogne Blanc, Domaine Armand Heitz", "acid": 50, "tanin": 0, "douceur": 0, "corps": 20, "alcool": 40},
+    {"name": "1er Cru Passetemps, Domaine de Villaine", "acid": 100, "tanin": 70, "douceur": 0, "corps": 90, "alcool": 40},
+    {"name": "Pernand-Vergelesses En Caradeux, Maison Champy", "acid": 100, "tanin": 0, "douceur": 0, "corps": 50, "alcool": 40},
+    {"name": "1er Cru Ile des Vergelesses, Domaine Pavelot", "acid": 100, "tanin": 50, "douceur": 0, "corps": 50, "alcool": 40},
+    {"name": "Les Grèves, Domaine de la Vougeraie", "acid": 100, "tanin": 50, "douceur": 0, "corps": 50, "alcool": 40},
+    {"name": "Château Montrose", "acid": 100, "tanin": 100, "douceur": 0, "corps": 90, "alcool": 40},
+    {"name": "Château Mouton Rothshild", "acid": 10, "tanin": 100, "douceur": 0, "corps": 90, "alcool": 80}
 ]
 
-# Function definitions remain the same
-
 def calculate_variance(user_preferences, bottle):
-    # ... (same as before)
+    variance = sum(abs(user_preferences[criteria] - bottle[criteria]) for criteria in user_preferences)
+    return variance
 
 def find_best_match(bottles, user_preferences):
-    # ... (same as before)
+    variance_scores = [(bottle["name"], calculate_variance(user_preferences, bottle)) for bottle in bottles]
+    sorted_bottles = sorted(variance_scores, key=lambda x: x[1])
+    return sorted_bottles
 
 # Streamlit app
 st.title("Wine Preference Matcher")
@@ -40,6 +46,3 @@ if st.button('Find Best Match'):
     st.write("Top Matching Bottles:")
     for bottle in best_match[:3]:
         st.write(f"Bottle: {bottle[0]}, Variance Score: {bottle[1]}")
-
-# Running the Streamlit app
-# To run this app, save the script as a .py file and run `streamlit run your_script.py` from the command line.
