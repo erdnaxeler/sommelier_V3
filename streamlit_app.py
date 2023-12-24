@@ -1,0 +1,48 @@
+import streamlit as st
+
+# Correcting the representation of the bottle data as a list of dictionaries
+bottles = [
+    {"name": "Blanc de Noirs, Domaine Armand Heitz", "acid": 50, "tanin": 20, "douceur": 0, "corps": 20, "alcool": 40},
+    {"name": "Bourgogne Blanc, Domaine Armand Heitz", "acid": 50, "tanin": 0, "douceur": 0, "corps": 20, "alcool": 40},
+    {"name": "1er Cru Passetemps, Domaine de Villaine", "acid": 100, "tanin": 70, "douceur": 0, "corps": 90, "alcool": 40},
+    {"name": "Pernand-Vergelesses En Caradeux, Maison Champy", "acid": 100, "tanin": 0, "douceur": 0, "corps": 50, "alcool": 40},
+    {"name": "1er Cru Ile des Vergelesses, Domaine Pavelot", "acid": 100, "tanin": 50, "douceur": 0, "corps": 50, "alcool": 40},
+    {"name": "Les Grèves, Domaine de la Vougeraie", "acid": 100, "tanin": 50, "douceur": 0, "corps": 50, "alcool": 40},
+    {"name": "Château Montrose", "acid": 100, "tanin": 100, "douceur": 0, "corps": 90, "alcool": 40},
+    {"name": "Château Mouton Rothshild", "acid": 10, "tanin": 100, "douceur": 0, "corps": 90, "alcool": 80}
+]
+
+# Now, I'll write the rest of the program that matches these bottles to the user's taste preference.
+# This will include asking for user input and calculating variances.
+
+def calculate_variance(user_preferences, bottle):
+    """Calculate the total variance for a bottle based on user preferences."""
+    variance = sum(abs(user_preferences[criteria] - bottle[criteria]) for criteria in user_preferences)
+    return variance
+
+def find_best_match(bottles, user_preferences):
+    """Find the best matching bottle based on the lowest variance score."""
+    # Calculate variance for each bottle
+    variance_scores = [(bottle["name"], calculate_variance(user_preferences, bottle)) for bottle in bottles]
+
+    # Sort the bottles based on variance score
+    sorted_bottles = sorted(variance_scores, key=lambda x: x[1])
+
+    return sorted_bottles
+
+# Get user input for preferences
+print("Please enter your preferences for each criterion (from 0 to 100):")
+user_preferences = {
+    "acid": int(input("Acidity: ")),
+    "tanin": int(input("Tanin: ")),
+    "douceur": int(input("Douceur: ")),
+    "corps": int(input("Corps: ")),
+    "alcool": int(input("Alcool: "))
+}
+
+# Finding the best match
+best_match = find_best_match(bottles, user_preferences)
+
+# Display the results
+for bottle in best_match[:3]:  # Displaying the top 3 matches
+    print(f"Bottle: {bottle[0]}, Variance Score: {bottle[1]}")
