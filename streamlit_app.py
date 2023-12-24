@@ -29,33 +29,30 @@ if 'current_question' not in st.session_state:
     st.session_state['current_question'] = 'acid'
 
 # Function to go to the next question
-def next_question(next_q):
+def next_question(current_value, next_q):
+    st.session_state[st.session_state['current_question']] = current_value
     st.session_state['current_question'] = next_q
 
 # Question sequence
 if st.session_state['current_question'] == 'acid':
     acid = st.number_input("Acidity", 0, 100, 50, step=1)
     if st.button('Next - Tanin'):
-        st.session_state['acid'] = acid
-        next_question('tanin')
+        next_question(acid, 'tanin')
 
 elif st.session_state['current_question'] == 'tanin':
     tanin = st.number_input("Tanin", 0, 100, 50, step=1)
     if st.button('Next - Douceur'):
-        st.session_state['tanin'] = tanin
-        next_question('douceur')
+        next_question(tanin, 'douceur')
 
 elif st.session_state['current_question'] == 'douceur':
     douceur = st.number_input("Douceur", 0, 100, 50, step=1)
     if st.button('Next - Corps'):
-        st.session_state['douceur'] = douceur
-        next_question('corps')
+        next_question(douceur, 'corps')
 
 elif st.session_state['current_question'] == 'corps':
     corps = st.number_input("Corps", 0, 100, 50, step=1)
     if st.button('Next - Alcool'):
-        st.session_state['corps'] = corps
-        next_question('alcool')
+        next_question(corps, 'alcool')
 
 elif st.session_state['current_question'] == 'alcool':
     alcool = st.number_input("Alcool", 0, 100, 50, step=1)
