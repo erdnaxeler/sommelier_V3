@@ -24,47 +24,51 @@ def find_best_match(bottles, user_preferences):
 # Streamlit app
 st.title("Wine Preference Quiz")
 
-# User inputs as a series of questions
-st.header("Please enter your preferences for each criterion (from 0 to 100):")
-acid = st.number_input("Acidity", 0, 100, 50, step=1)
-if st.button('Next - Tanin'):
-    st.session_state['acid'] = acid
-    st.session_state['current_question'] = 'tanin'
+# Initialize current question in session state
+if 'current_question' not in st.session_state:
+    st.session_state['current_question'] = 'acid'
 
-if 'current_question' in st.session_state:
-    if st.session_state['current_question'] == 'tanin':
-        tanin = st.number_input("Tanin", 0, 100, 50, step=1)
-        if st.button('Next - Douceur'):
-            st.session_state['tanin'] = tanin
-            st.session_state['current_question'] = 'douceur'
+# Function to go to the next question
+def next_question(next_q):
+    st.session_state['current_question'] = next_q
 
-if 'current_question' in st.session_state:
-    if st.session_state['current_question'] == 'douceur':
-        douceur = st.number_input("Douceur", 0, 100, 50, step=1)
-        if st.button('Next - Corps'):
-            st.session_state['douceur'] = douceur
-            st.session_state['current_question'] = 'corps'
+# Question sequence
+if st.session_state['current_question'] == 'acid':
+    acid = st.number_input("Acidity", 0, 100, 50, step=1)
+    if st.button('Next - Tanin'):
+        st.session_state['acid'] = acid
+        next_question('tanin')
 
-if 'current_question' in st.session_state:
-    if st.session_state['current_question'] == 'corps':
-        corps = st.number_input("Corps", 0, 100, 50, step=1)
-        if st.button('Next - Alcool'):
-            st.session_state['corps'] = corps
-            st.session_state['current_question'] = 'alcool'
+elif st.session_state['current_question'] == 'tanin':
+    tanin = st.number_input("Tanin", 0, 100, 50, step=1)
+    if st.button('Next - Douceur'):
+        st.session_state['tanin'] = tanin
+        next_question('douceur')
 
-if 'current_question' in st.session_state:
-    if st.session_state['current_question'] == 'alcool':
-        alcool = st.number_input("Alcool", 0, 100, 50, step=1)
-        if st.button('Find Best Match'):
-            st.session_state['alcool'] = alcool
-            user_preferences = {
-                "acid": st.session_state['acid'],
-                "tanin": st.session_state['tanin'],
-                "douceur": st.session_state['douceur'],
-                "corps": st.session_state['corps'],
-                "alcool": st.session_state['alcool']
-            }
-            best_match = find_best_match(bottles, user_preferences)
-            st.write("Top Matching Bottles:")
-            for bottle in best_match[:3]:
-                st.write(f"Bottle: {bottle[0]}, Variance Score: {bottle[1]}")
+elif st.session_state['current_question'] == 'douceur':
+    douceur = st.number_input("Douceur", 0, 100, 50, step=1)
+    if st.button('Next - Corps'):
+        st.session_state['douceur'] = douceur
+        next_question('corps')
+
+elif st.session_state['current_question'] == 'corps':
+    corps = st.number_input("Corps", 0, 100, 50, step=1)
+    if st.button('Next - Alcool'):
+        st.session_state['corps'] = corps
+        next_question('alcool')
+
+elif st.session_state['current_question'] == 'alcool':
+    alcool = st.number_input("Alcool", 0, 100, 50, step=1)
+    if st.button('Find Best Match'):
+        st.session_state['alcool'] = alcool
+        user_preferences = {
+            "acid": st.session_state['acid'],
+            "tanin": st.session_state['tanin'],
+            "douceur": st.session_state['douceur'],
+            "corps": st.session_state['corps'],
+            "alcool": st.session_state['alcool']
+        }
+        best_match = find_best_match(bottles, user_preferences)
+        st.write("Top Matching Bottles:")
+        for bottle in best_match[:3]:
+            st.write(f"Bottle: {bottle[0]}, Variance Score: {bottle[1]}")
