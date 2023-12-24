@@ -25,11 +25,10 @@ def find_best_match(bottles, user_preferences):
 st.title("Wine Preference Quiz")
 
 # Initialize session state
-if 'init' not in st.session_state:
-    st.session_state['current_question'] = 0
-    st.session_state['init'] = True
+if 'preferences' not in st.session_state:
     st.session_state['preferences'] = {}
-    st.session_state['values'] = [50, 50, 50, 50, 50]  # Default values
+if 'current_question_index' not in st.session_state:
+    st.session_state['current_question_index'] = 0
 
 # Define the questions
 questions = [
@@ -41,22 +40,23 @@ questions = [
 ]
 
 # Display current question
-if st.session_state['current_question'] < len(questions):
-    question = questions[st.session_state['current_question']]
-    value = st.number_input(question['label'], 0, 100, 
-                            st.session_state['values'][st.session_state['current_question']], 
-                            step=1)
-    st.session_state['values'][st.session_state['current_question']] = value
-
+if st.session_state['current_question_index'] < len(questions):
+    question = questions[st.session_state['current_question_index']]
+    value = st.number_input(question['label'], 0, 100, 50, step=1)
+    
     if st.button('Next'):
         st.session_state['preferences'][question['key']] = value
-        st.session_state['current_question'] += 1
+        st.session_state['current_question_index'] += 1
 
 # "Find Best Match" button appears after all preferences are set
-if st.session_state['current_question'] == len(questions):
+if st.session_state['current_question_index'] == len(questions):
     if st.button('Find Best Match'):
         user_preferences = st.session_state['preferences']
         best_match = find_best_match(bottles, user_preferences)
         st.write("Top Matching Bottles:")
         for bottle in best_match[:3]:
             st.write(f"Bottle: {bottle[0]}, Variance Score: {bottle[1]}")
+
+        # Reset the quiz
+        st.session_state['current_question_index'] = 0
+        st.session_state['preferences'] = {}
