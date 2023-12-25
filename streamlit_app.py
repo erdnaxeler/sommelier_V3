@@ -24,14 +24,6 @@ def find_best_match(bottles, user_preferences):
 # Streamlit app
 st.title("Wine Preference Quiz")
 
-# Initialize session state
-if 'preferences' not in st.session_state:
-    st.session_state['preferences'] = {}
-if 'current_question' not in st.session_state:
-    st.session_state['current_question'] = 0
-if 'first_interaction' not in st.session_state:
-    st.session_state['first_interaction'] = False
-
 # Define the questions
 questions = [
     {"label": "Acidity", "key": "acid"},
@@ -41,28 +33,16 @@ questions = [
     {"label": "Alcool", "key": "alcool"}
 ]
 
-# Function to advance to the next question
-def next_question():
-    if st.session_state['current_question'] < len(questions) - 1:
-        st.session_state['current_question'] += 1
-    else:
-        # Display results
-        user_preferences = st.session_state['preferences']
-        best_match = find_best_match(bottles, user_preferences)
-        st.write("Top Matching Bottles:")
-        for bottle in best_match[:3]:
-            st.write(f"Bottle: {bottle[0]}, Variance Score: {bottle[1]}")
+# Create a form to take all inputs at once
+with st.form("preference_form"):
+    user_preferences = {}
+    for question in questions:
+        user_preferences[question['key']] = st.number_input(question['label'], 0, 100, 50, step=1, key=question['key'])
+    submitted = st.form_submit_button("Submit Preferences")
 
-# Display current question
-question = questions[st.session_state['current_question']]
-preference = st.number_input(question['label'], 0, 100, 50, step=1, key=question['key'])
-
-# Handling first interaction separately
-if st.session_state['current_question'] == 0 and not st.session_state['first_interaction']:
-    if st.button('Start'):
-        st.session_state['first_interaction'] = True
-        st.session_state['preferences'][question['key']] = preference
-else:
-    if st.button('Next'):
-        st.session_state['preferences'][question['key']] = preference
-        next_question()
+# Process the form submission
+if submitted:
+    best_match = find_best_match(bottles, user_preferences)
+    st.write("Top Matching Bottles:")
+    for bottle in best_match[:3]:
+        st.write(f"Bottle: {bottle[0]}, Variance Score: {bottle[1]}")
