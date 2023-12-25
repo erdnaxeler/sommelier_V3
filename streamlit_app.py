@@ -48,20 +48,24 @@ if not st.session_state['quiz_started']:
 
 # Display Quiz Questions
 if st.session_state['quiz_started']:
-    question = questions[st.session_state['current_question_index']]
-    preference = st.number_input(question['label'], 0, 100, 50, step=1, key=question['key'])
+    if st.session_state['current_question_index'] < len(questions):
+        question = questions[st.session_state['current_question_index']]
+        preference = st.number_input(question['label'], 0, 100, 50, step=1, key=f'input_{question["key"]}')
 
-    if st.button('Next', key=f'next_{question["key"]}'):
-        st.session_state['preferences'][question['key']] = preference
-        if st.session_state['current_question_index'] < len(questions) - 1:
+        if st.button('Next', key=f'next_{question["key"]}'):
+            st.session_state['preferences'][question['key']] = preference
             st.session_state['current_question_index'] += 1
-        else:
-            # Calculate and Display Results
-            user_preferences = st.session_state['preferences']
-            best_match = find_best_match(bottles, user_preferences)
-            st.write("Top Matching Bottles:")
-            for bottle in best_match[:3]:
-                st.write(f"Bottle: {bottle[0]}, Variance Score: {bottle[1]}")
-            # Reset Quiz
+
+    # Display Results after the last question
+    if st.session_state['current_question_index'] == len(questions):
+        user_preferences = st.session_state['preferences']
+        best_match = find_best_match(bottles, user_preferences)
+        st.write("Top Matching Bottles:")
+        for bottle in best_match[:3]:
+            st.write(f"Bottle: {bottle[0]}, Variance Score: {bottle[1]}")
+
+        # Reset Quiz
+        if st.button("Restart Quiz"):
             st.session_state['quiz_started'] = False
             st.session_state['current_question_index'] = 0
+            st.session_state['preferences'] = {}
