@@ -24,6 +24,11 @@ def find_best_match(bottles, user_preferences):
 # Streamlit app
 st.title("Wine Preference Quiz")
 
+# Initialize session state for current question and preferences
+if 'current_question_index' not in st.session_state:
+    st.session_state['current_question_index'] = 0
+    st.session_state['preferences'] = {}
+
 # Define the questions
 questions = [
     {"label": "Acidity", "key": "acid"},
@@ -33,16 +38,24 @@ questions = [
     {"label": "Alcool", "key": "alcool"}
 ]
 
-# Create a form to take all inputs at once
-with st.form("preference_form"):
-    user_preferences = {}
-    for question in questions:
-        user_preferences[question['key']] = st.number_input(question['label'], 0, 100, 50, step=1, key=question['key'])
-    submitted = st.form_submit_button("Submit Preferences")
+# Display one question at a time
+if st.session_state['current_question_index'] < len(questions):
+    question = questions[st.session_state['current_question_index']]
+    preference = st.number_input(question['label'], 0, 100, 50, step=1, key=question['key'])
 
-# Process the form submission
-if submitted:
-    best_match = find_best_match(bottles, user_preferences)
-    st.write("Top Matching Bottles:")
-    for bottle in best_match[:3]:
-        st.write(f"Bottle: {bottle[0]}, Variance Score: {bottle[1]}")
+    # Proceed to the next question or show results
+    if st.button('Next'):
+        st.session_state['preferences'][question['key']] = preference
+        if st.session_state['current_question_index'] < len(questions) - 1:
+            st.session_state['current_question_index'] += 1
+        else:
+            # Calculate and display the best match
+            user_preferences = st.session_state['preferences']
+            best_match = find_best_match(bottles, user_preferences)
+            st.write("Top Matching Bottles:")
+            for bottle in best_match[:3]:
+                st.write(f"Bottle: {bottle[0]}, Variance Score: {bottle[1]}")
+
+            # Reset for another run
+            st.session_state['current_question_index'] = 0
+            st.session_state['preferences'] = {}
