@@ -9,33 +9,34 @@ def main():
         st.session_state.current_characteristic_index = 0
     if 'ratings' not in st.session_state:
         st.session_state.ratings = {}
-    if 'first_click' not in st.session_state:
-        st.session_state.first_click = True  # New flag for the first click
+    if 'init' not in st.session_state:
+        st.session_state.init = True  # New flag for the initial state
 
     st.title("Wine Rating App")
 
-    # Only show rating sliders and button if there are characteristics left to rate
-    if st.session_state.current_characteristic_index < len(wine_data):
-        characteristic = wine_data[st.session_state.current_characteristic_index]
-        st.write(f"Rate the {characteristic['characteristic']}:")
-        rating = st.slider("", characteristic["scale"][0], characteristic["scale"][1], 50, key=characteristic['characteristic'])
+    # Handling the first interaction separately
+    if st.session_state.init:
+        if st.button("Start Rating"):
+            st.session_state.init = False
+    else:
+        # Display questions after starting the rating
+        if st.session_state.current_characteristic_index < len(wine_data):
+            characteristic = wine_data[st.session_state.current_characteristic_index]
+            st.write(f"Rate the {characteristic['characteristic']}:")
+            rating = st.slider("", characteristic["scale"][0], characteristic["scale"][1], 50, key=characteristic['characteristic'])
 
-        # Button to go to the next characteristic
-        if st.button('Next', key=f'next_{characteristic["characteristic"]}'):
-            if st.session_state.first_click:
-                st.session_state.first_click = False  # Change the flag after the first click
-            else:
+            if st.button('Next', key=f'next_{characteristic["characteristic"]}'):
                 st.session_state.ratings[characteristic['characteristic']] = rating
                 st.session_state.current_characteristic_index += 1
 
-    # Check for completion of the rating process
-    elif len(st.session_state.ratings) == len(wine_data):
-        st.write("Wine rating completed!")
-        st.write("Your ratings:", st.session_state.ratings)
-        if st.button("Restart Rating"):
-            st.session_state.current_characteristic_index = 0
-            st.session_state.ratings = {}
-            st.session_state.first_click = True  # Reset the first click flag
+        # Check for completion of the rating process
+        if st.session_state.current_characteristic_index >= len(wine_data):
+            st.write("Wine rating completed!")
+            st.write("Your ratings:", st.session_state.ratings)
+            if st.button("Restart Rating"):
+                st.session_state.current_characteristic_index = 0
+                st.session_state.ratings = {}
+                st.session_state.init = True  # Reset to initial state
 
 if __name__ == "__main__":
     main()
