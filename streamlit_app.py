@@ -25,9 +25,12 @@ def find_best_match(bottles, user_preferences):
 st.title("Wine Preference Quiz")
 
 # Initialize session state
-if 'current_question_index' not in st.session_state:
-    st.session_state['current_question_index'] = -1  # Start before the first question
+if 'preferences' not in st.session_state:
     st.session_state['preferences'] = {}
+if 'quiz_started' not in st.session_state:
+    st.session_state['quiz_started'] = False
+if 'current_question_index' not in st.session_state:
+    st.session_state['current_question_index'] = 0
 
 # Define the questions
 questions = [
@@ -38,27 +41,27 @@ questions = [
     {"label": "Alcool", "key": "alcool"}
 ]
 
-# Start the quiz
-if st.session_state['current_question_index'] == -1:
-    if st.button('Start Quiz'):
-        st.session_state['current_question_index'] = 0
+# Start Quiz Button
+if not st.session_state['quiz_started']:
+    if st.button("Start Quiz"):
+        st.session_state['quiz_started'] = True
 
-# Display one question at a time
-elif 0 <= st.session_state['current_question_index'] < len(questions):
+# Display Quiz Questions
+if st.session_state['quiz_started']:
     question = questions[st.session_state['current_question_index']]
     preference = st.number_input(question['label'], 0, 100, 50, step=1, key=question['key'])
 
-    if st.button('Next'):
+    if st.button('Next', key=f'next_{question["key"]}'):
         st.session_state['preferences'][question['key']] = preference
-        st.session_state['current_question_index'] += 1
-
-# Show results after the last question
-if st.session_state['current_question_index'] >= len(questions):
-    user_preferences = st.session_state['preferences']
-    best_match = find_best_match(bottles, user_preferences)
-    st.write("Top Matching Bottles:")
-    for bottle in best_match[:3]:
-        st.write(f"Bottle: {bottle[0]}, Variance Score: {bottle[1]}")
-    st.session_state['current_question_index'] = -1  # Reset for another run
-
-# This approach uses a 'Start Quiz' button to initiate the quiz and then progresses through each question.
+        if st.session_state['current_question_index'] < len(questions) - 1:
+            st.session_state['current_question_index'] += 1
+        else:
+            # Calculate and Display Results
+            user_preferences = st.session_state['preferences']
+            best_match = find_best_match(bottles, user_preferences)
+            st.write("Top Matching Bottles:")
+            for bottle in best_match[:3]:
+                st.write(f"Bottle: {bottle[0]}, Variance Score: {bottle[1]}")
+            # Reset Quiz
+            st.session_state['quiz_started'] = False
+            st.session_state['current_question_index'] = 0
