@@ -29,6 +29,8 @@ if 'preferences' not in st.session_state:
     st.session_state['preferences'] = {}
 if 'current_question' not in st.session_state:
     st.session_state['current_question'] = 0
+if 'first_interaction' not in st.session_state:
+    st.session_state['first_interaction'] = False
 
 # Define the questions
 questions = [
@@ -38,10 +40,6 @@ questions = [
     {"label": "Corps", "key": "corps"},
     {"label": "Alcool", "key": "alcool"}
 ]
-
-# Callback function to update preference
-def update_preference(key, value):
-    st.session_state['preferences'][key] = value
 
 # Function to advance to the next question
 def next_question():
@@ -57,8 +55,14 @@ def next_question():
 
 # Display current question
 question = questions[st.session_state['current_question']]
-preference = st.number_input(question['label'], 0, 100, 50, step=1, key=question['key'],
-                             on_change=update_preference, args=(question['key'], ))
+preference = st.number_input(question['label'], 0, 100, 50, step=1, key=question['key'])
 
-if st.button('Next'):
-    next_question()
+# Handling first interaction separately
+if st.session_state['current_question'] == 0 and not st.session_state['first_interaction']:
+    if st.button('Start'):
+        st.session_state['first_interaction'] = True
+        st.session_state['preferences'][question['key']] = preference
+else:
+    if st.button('Next'):
+        st.session_state['preferences'][question['key']] = preference
+        next_question()
