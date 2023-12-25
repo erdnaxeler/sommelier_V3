@@ -9,8 +9,8 @@ def main():
         st.session_state.current_characteristic_index = 0
     if 'ratings' not in st.session_state:
         st.session_state.ratings = {}
-    if 'button_clicked' not in st.session_state:
-        st.session_state.button_clicked = False
+    if 'first_click' not in st.session_state:
+        st.session_state.first_click = True  # New flag for the first click
 
     st.title("Wine Rating App")
 
@@ -22,9 +22,11 @@ def main():
 
         # Button to go to the next characteristic
         if st.button('Next', key=f'next_{characteristic["characteristic"]}'):
-            st.session_state.ratings[characteristic['characteristic']] = rating
-            st.session_state.current_characteristic_index += 1
-            st.session_state.button_clicked = not st.session_state.button_clicked
+            if st.session_state.first_click:
+                st.session_state.first_click = False  # Change the flag after the first click
+            else:
+                st.session_state.ratings[characteristic['characteristic']] = rating
+                st.session_state.current_characteristic_index += 1
 
     # Check for completion of the rating process
     elif len(st.session_state.ratings) == len(wine_data):
@@ -33,7 +35,7 @@ def main():
         if st.button("Restart Rating"):
             st.session_state.current_characteristic_index = 0
             st.session_state.ratings = {}
-            st.session_state.button_clicked = False
+            st.session_state.first_click = True  # Reset the first click flag
 
 if __name__ == "__main__":
     main()
